@@ -2,7 +2,7 @@
 
 const puppeteer = require('puppeteer');
 
-async function login(page) {
+async function login(page, ACCOUNT, PASSWORD) {
     try {
         //await page.click('.navbar-toggle.collapsed'); //FIRST STEP NEEDED IF PAGE SIZE TOO SMALL   
         //await page.waitFor(1000);
@@ -11,9 +11,9 @@ async function login(page) {
         await page.waitForSelector('#account')
             .then(() => page.waitForTimeout(1000))
             .then(() => page.focus('#account'))
-            .then(() => page.type('#account', process.env.ACCOUNT.split('@')[0], {delay: 100}))
+            .then(() => page.type('#account', ACCOUNT.split('@')[0], {delay: 100}))
             .then(() => page.focus('#key'))
-            .then(() => page.type('#key', process.env.PASSWORD, {delay: 100}))
+            .then(() => page.type('#key', PASSWORD, {delay: 100}))
             .then(() => page.click('#btn_login'))
             .then(() => page.waitForTimeout(2000)
             .then(() => page.waitForSelector('.modal-close-new')))

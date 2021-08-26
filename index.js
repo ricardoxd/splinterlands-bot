@@ -10,24 +10,24 @@ const quests = require('./quests');
 const ask = require('./possibleTeams');
 
 // LOAD MY CARDS
-async function getCards() {
-    const myCards = await user.getPlayerCards(process.env.ACCOUNT.split('@')[0]) //split to prevent email use
+async function getCards(ACCOUNT) {
+    const myCards = await user.getPlayerCards(ACCOUNT.split('@')[0]) //split to prevent email use
     return myCards;
 } 
 
-async function getQuest() {
-    return quests.getPlayerQuest(process.env.ACCOUNT.split('@')[0])
+async function getQuest(ACCOUNT) {
+    return quests.getPlayerQuest(ACCOUNT.split('@')[0])
         .then(x=>x)
         .catch(e=>console.log('No quest data, splinterlands API didnt respond.'))
 }
 
-async function startBotPlayMatch(page, myCards, quest) {
+async function startBotPlayMatch(page, myCards, quest, ACCOUNT, PASSWORD) {
     
     console.log( new Date().toLocaleString())
     if(myCards) {
-        console.log(process.env.ACCOUNT, ' deck size: '+myCards.length)
+        console.log(ACCOUNT, ' deck size: '+myCards.length)
     } else {
-        console.log(process.env.ACCOUNT, ' playing only basic cards')
+        console.log(ACCOUNT, ' playing only basic cards')
     }
     await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36');
     await page.setViewport({
@@ -47,7 +47,7 @@ async function startBotPlayMatch(page, myCards, quest) {
 
     if (item != undefined)
     {console.log('Login')
-        await splinterlandsPage.login(page).catch(e=>console.log('Login Error: ',e));
+        await splinterlandsPage.login(page, ACCOUNT, PASSWORD).catch(e=>console.log('Login Error: ',e));
     }
     
     await page.waitForTimeout(8000);
@@ -122,7 +122,7 @@ async function startBotPlayMatch(page, myCards, quest) {
         myCards: myCards
     }
     await page.waitForTimeout(2000);
-    const possibleTeams = await ask.possibleTeams(matchDetails).catch(e=>console.log('Error from possible team API call: ',e));
+    const possibleTeams = await ask.possibleTeams(matchDetails, ACCOUNT).catch(e=>console.log('Error from possible team API call: ',e));
 
     if (possibleTeams && possibleTeams.length) {
         console.log('Possible Teams: ', possibleTeams.length, '\n', possibleTeams);
@@ -182,13 +182,20 @@ async function startBotPlayMatch(page, myCards, quest) {
 }
 
 // 1800000 === 30 MINUTES INTERVAL BETWEEN EACH MATCH
-const sleepingTimeInMinutes = 30;
+const sleepingTimeInMinutes = 1;
 const sleepingTime = sleepingTimeInMinutes * 60000;
 
 (async () => {
     while (true) {
+        await launch(process.env.ACCOUNT, process.env.PASSWORD);
+        await launch(process.env.ACCOUNT2, process.env.PASSWORD2);
+    }
+})();
+
+
+async function launch( ACCOUNT, PASSWORD) {
         try {
-            console.log('START ', process.env.ACCOUNT, new Date().toLocaleString())
+            console.log('START ', ACCOUNT, new Date().toLocaleString())
             const browser = await puppeteer.launch({
                 headless: true,
                 //args: ['--no-sandbox']
@@ -200,12 +207,12 @@ const sleepingTime = sleepingTimeInMinutes * 60000;
             });
             page.goto('https://splinterlands.io/');
             console.log('getting user cards collection from splinterlands API...')
-            const myCards = await getCards()
+            const myCards = await getCards(ACCOUNT)
                 .then((x)=>{console.log('cards retrieved'); return x})
                 .catch(()=>console.log('cards collection api didnt respond')); 
             console.log('getting user quest info from splinterlands API...')
-            const quest = await getQuest();
-            await startBotPlayMatch(page, myCards, quest)
+            const quest = await getQuest(ACCOUNT);
+            await startBotPlayMatch(page, myCards, quest, ACCOUNT, PASSWORD)
                 .then(() => {
                     console.log('Closing battle', new Date().toLocaleString());        
                 })
@@ -217,8 +224,7 @@ const sleepingTime = sleepingTimeInMinutes * 60000;
         } catch (e) {
             console.log('Routine error at: ', new Date().toLocaleString(), e)
         }
-        await console.log(process.env.ACCOUNT,'waiting for the next battle in', sleepingTime / 1000 / 60 , ' minutes at ', new Date(Date.now() +sleepingTime).toLocaleString() )
+        await console.log(ACCOUNT,'waiting for the next battle in', sleepingTime / 1000 / 60 , ' minutes at ', new Date(Date.now() +sleepingTime).toLocaleString() )
         await console.log('If you need support for the bot, join the telegram group https://t.me/splinterlandsbot and discord https://discord.gg/bR6cZDsFSX,  dont pay scammers')
         await new Promise(r => setTimeout(r, sleepingTime));
-    }
-})();
+}

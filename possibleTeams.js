@@ -71,12 +71,12 @@ const { filter } = require('./data/basicCards.js');
 
 let availabilityCheck = (base, toCheck) => toCheck.slice(0, 7).every(v => base.includes(v));
 
-const getBattlesWithRuleset = (ruleset, mana, summoners) => {
+const getBattlesWithRuleset = (ruleset, mana, summoners, ACCOUNT) => {
     const rulesetEncoded = encodeURIComponent(ruleset);
     console.log(process.env.API)
     const host = process.env.API || 'https://splinterlands-data-service.herokuapp.com/'
     //const host = 'http://localhost:3000/'
-    const url = `battlesruleset?ruleset=${rulesetEncoded}&mana=${mana}&player=${process.env.ACCOUNT}&summoners=${summoners ? JSON.stringify(summoners) : ''}`;
+    const url = `battlesruleset?ruleset=${rulesetEncoded}&mana=${mana}&player=${ACCOUNT}&summoners=${summoners ? JSON.stringify(summoners) : ''}`;
     console.log('API call: ', host+url)
     return fetch(host+url)
         .then(x => x && x.json())
@@ -84,8 +84,8 @@ const getBattlesWithRuleset = (ruleset, mana, summoners) => {
         .catch((e) => console.log('fetch ', e))
 }
 
-const battlesFilterByManacap = async (mana, ruleset, summoners) => {
-    const history = await getBattlesWithRuleset(ruleset, mana, summoners);
+const battlesFilterByManacap = async (mana, ruleset, summoners, ACCOUNT) => {
+    const history = await getBattlesWithRuleset(ruleset, mana, summoners, ACCOUNT);
     if (history) {
         console.log('API battles returned ', history.length)
         return history.filter(
@@ -105,7 +105,7 @@ const battlesFilterByManacap = async (mana, ruleset, summoners) => {
     )
 }
 
-const cardsIdsforSelectedBattles = (mana, ruleset, splinters, summoners) => battlesFilterByManacap(mana, ruleset, summoners)
+const cardsIdsforSelectedBattles = (mana, ruleset, splinters, summoners, ACCOUNT) => battlesFilterByManacap(mana, ruleset, summoners, ACCOUNT)
     .then(x => {
         return x.map(
             (x) => {
@@ -125,11 +125,11 @@ const cardsIdsforSelectedBattles = (mana, ruleset, splinters, summoners) => batt
         )
     })
 
-const askFormation = function (matchDetails) {
+const askFormation = function (matchDetails, ACCOUNT) {
     const cards = matchDetails.myCards || basicCards;
     const mySummoners = getSummoners(cards);
     console.log('INPUT: ', matchDetails.mana, matchDetails.rules, matchDetails.splinters, cards.length)
-    return cardsIdsforSelectedBattles(matchDetails.mana, matchDetails.rules, matchDetails.splinters, mySummoners)
+    return cardsIdsforSelectedBattles(matchDetails.mana, matchDetails.rules, matchDetails.splinters, mySummoners, ACCOUNT)
         .then(x => x.filter(
             x => availabilityCheck(cards, x))
             .map(element => element)//cards.cardByIds(element)
@@ -137,11 +137,11 @@ const askFormation = function (matchDetails) {
 
 }
 
-const possibleTeams = async (matchDetails) => {
+const possibleTeams = async (matchDetails, ACCOUNT) => {
     let possibleTeams = [];
     while (matchDetails.mana > 10) {
         console.log('check battles based on mana: '+matchDetails.mana)
-        possibleTeams = await askFormation(matchDetails)
+        possibleTeams = await askFormation(matchDetails, ACCOUNT)
         if (possibleTeams.length > 0) {
             return possibleTeams;
         }

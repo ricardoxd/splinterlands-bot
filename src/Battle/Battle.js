@@ -1,8 +1,8 @@
 const fetch = require("node-fetch");
 const { Pool } = require('pg')
 
-async function getPlayerBattlesHistory(player = '') {
-    return await fetch('https://api.steemmonsters.io/battle/history?player=' + player + '&v=1582143214911&token=5C9VPKBVV4&username=' + process.env.ACCOUNT.split('@')[0])
+async function getPlayerBattlesHistory(player = '', ACCOUNT) {
+    return await fetch('https://api.steemmonsters.io/battle/history?player=' + player + '&v=1582143214911&token=5C9VPKBVV4&username=' + ACCOUNT.split('@')[0])
         .then((response) => {
             if (!response.ok) {
                 throw new Error('Network response was not ok');
@@ -105,9 +105,9 @@ const pool = new Pool({
 
 const makeInsertQuery = (battleDetails) => "INSERT INTO battles (summoner_id, summoner_level, monster_1_id, monster_1_level,monster_1_abilities, monster_2_id, monster_2_level, monster_2_abilities, monster_3_id, monster_3_level, monster_3_abilities, monster_4_id, monster_4_level, monster_4_abilities, monster_5_id, monster_5_level, monster_5_abilities, monster_6_id, monster_6_level, monster_6_abilities, created_date, match_type, mana_cap, ruleset, inactive, battle_queue_id, player_rating_initial, player_rating_final, winner) VALUES('" + Object.values(battleDetails).join("','") + "') ON CONFLICT (battle_queue_id) DO NOTHING;"
 
-async function writeDB() {
+async function writeDB(ACCOUNT) {
     await pool.connect();
-    await getPlayerBattlesHistory(process.env.ACCOUNT.split('@')[0])
+    await getPlayerBattlesHistory(ACCOUNT.split('@')[0], ACCOUNT.split('@')[0])
         .then((result) => {
             console.log('TOTAL ROWS: ', result.length)
             result.map(
@@ -126,4 +126,4 @@ async function writeDB() {
     await pool.end()
 }
 
-writeDB();
+writeDB(process.env.ACCOUNT);
