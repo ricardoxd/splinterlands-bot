@@ -182,7 +182,7 @@ async function startBotPlayMatch(page, myCards, quest, ACCOUNT, PASSWORD) {
 }
 
 // 1800000 === 30 MINUTES INTERVAL BETWEEN EACH MATCH
-const sleepingTimeInMinutes = 10;
+const sleepingTimeInMinutes = 0.1;
 const sleepingTime = sleepingTimeInMinutes * 60000;
 
 (async () => {
@@ -190,6 +190,10 @@ const sleepingTime = sleepingTimeInMinutes * 60000;
         await launch(process.env.ACCOUNT, process.env.PASSWORD);
         await launch(process.env.ACCOUNT2, process.env.PASSWORD2);
         await launch(process.env.ACCOUNT3, process.env.PASSWORD3);
+        await launch(process.env.ACCOUNT4, process.env.PASSWORD4);
+        await launch(process.env.ACCOUNT5, process.env.PASSWORD5);
+        await launch(process.env.ACCOUNT6, process.env.PASSWORD6);
+        await launch(process.env.ACCOUNT7, process.env.PASSWORD7);
     }
 })();
 
@@ -229,3 +233,6 @@ async function launch( ACCOUNT, PASSWORD) {
         await console.log('If you need support for the bot, join the telegram group https://t.me/splinterlandsbot and discord https://discord.gg/bR6cZDsFSX,  dont pay scammers')
         await new Promise(r => setTimeout(r, sleepingTime));
 }
+
+
+
