@@ -1,6 +1,7 @@
 async function login(page, ACCOUNT, PASSWORD) {
     try {
         page.waitForSelector('#log_in_button > button').then(() => page.click('#log_in_button > button'))
+        page.waitForSelector('.pull-right').then(() => page.click('.pull-right'))  
         await page.waitForSelector('#email')
             .then(() => page.waitForTimeout(3000))
             .then(() => page.focus('#email'))
