@@ -3,32 +3,72 @@
 This is my personal project of a BOT to play the game [Splinterlands](https://www.splinterlands.com). It requires [NodeJs](https://nodejs.org/it/download/) installed to run.
 
 
-## index.js
+## How to start the BOT:
 
-run `npm install`
+REQUIREMENT: You need to install NodeJS from https://nodejs.org/en/download/
 
-to start BOT login routine. username and password needs to be specified in the file .env (file with no name, only starting dot to create a hidden file) in the root as variable like:
+To start BOT login routine. you need to create the .env file and include the username and password (file with no name, only starting dot to create a hidden file) in the root folder, 
+
+Example: 
 
 - `ACCOUNT=youraccountname`
 - `PASSWORD=yourpostingpassword`
 
-run `node index.js`
+You can also use the file `.env-example` as a template, but remember to remove `-example` from the filename.
 
 
-## battlesGetData.js
+Once the file is created, open cmd (for windows) or terminal (for Mac and Linux) and run:
 
-[ OPTIONAL ] run `node battlesGetData.js`
+`npm install`
 
-The BOT leverage an API but in case doesn't work, it is possible to have locally an history as a backup.
-To generate the file 'history.json' with a unique array with the history of the battles of an array of users (to be specified in the file).
+and then
 
-input data for future model:
+`npm start`
 
-- _mana_cap_: the total mana that can be selected
-- _ruleset_: rules applied for the match (to be explored)
-- _inactive_: type of monster card that are not available for the match. important for the summoner selection (first card)
 
-_Example_: `[{"summoner_id":178, "summoner_level":1, "monster_1_id":174, "monster_1_level":1, "monster_1_abilities":[ ], "monster_2_id":172, "monster_2_level":1, "monster_2_abilities":[ ], "monster_3_id":169, "monster_3_level":1, "monster_3_abilities":[ ], "monster_4_id":"", "monster_4_level":"" "monster_4_abilities":"", "monster_5_id":"", "monster_5_level":"", "monster_5_abilities":"", "monster_6_id":"", "monster_6_level":"", "monster_6_abilities":"", "created_date":"2020-02-21T00:51:30.717Z", "match_type":"Ranked", "mana_cap":13, "ruleset":"Back to Basics", "inactive":"Green,Black,Gold", "battle_queue_id":"a137a7b662bdb182069a8a13f36071ed14a4a6d9", "player_rating_initial":596, "player_rating_final":617, "winner":"a14"],...}`
+### Optional variables:
+
+The BOT will make a battle every 30 minutes by default, you can change the custom value specifying in the .env the variable `MINUTES_BATTLES_INTERVAL`.
+The BOT will also try to select team to complete the daily quest by default. If you want to remove this option to increase the winning rate, you can set the variable `QUEST_PRIORITY` as false.
+By default, the BOT doesn't check for season rewards but it can automatically click on the seasons reward claim button if available and the `CLAIM_SEASON_REWARD` is set to true. The default option is false.
+By default, the BOT checks automatically for daily quest rewards but the claim option can be deactivated with the option `CLAIM_DAILY_QUEST_REWARD` is set to false. The default option is true.
+By default, the BOT will run as headless. Set `HEADLESS` to false to see your browser. The default option is true
+
+Example:
+
+- `QUEST_PRIORITY=false`
+
+- `MINUTES_BATTLES_INTERVAL=30`
+
+- `CLAIM_SEASON_REWARD=true`
+
+- `CLAIM_DAILY_QUEST_REWARD=false`
+
+- `HEADLESS=false`
+
+
+
+## Local History backup (battlesGetData.js)
+
+The BOT leverages an API on a free server but in case the traffic is heavy or it doesn't work, it is possible to have locally an history as a backup solution that the bot will read automatically.
+To generate the file 'history.json' with a unique array with the history of the battles of an array of users specified in the file.
+
+[ OPTIONAL ] run this command from the terminal:
+
+`node battlesGetData.js`
+
+Once the script is done, it will create a file 'history.json' in the data folder. To makes the bot using it, you have to rename it in: 'newHistory.json' 
+
+**How to get history data from users of my choice?**
+
+1. Open battlesGetData.js in notepad and change the usersToGrab on line 69 to the users of your choice
+2. Run `node battlesGetData.js` in the bot folder
+3. File history.json is created, rename it to newHistory.json to replace the existing history data OR extend the newHistory.json file (see below)
+
+**How to extend the newHistory.json without deleting existing data?**
+
+1. Backup newHistory.json in case something goes wrong
+2. Inside the data folder, run `node combine.js` in the data folder to add the data from history.json to the newHistory.json file
 
 
 # FAQ
